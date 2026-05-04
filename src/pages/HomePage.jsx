@@ -1,7 +1,9 @@
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import HabitDayItem from '../components/HabitDayItem'
 import ProgressRing from '../components/ProgressRing'
+import Confetti from '../components/Confetti'
 import { getGreeting, getDayMessage, getInspirational } from '../data/messages'
 
 function HomePage({ identities, completions, onMarkHabit, onUnmarkHabit }) {
@@ -24,7 +26,27 @@ function HomePage({ identities, completions, onMarkHabit, onUnmarkHabit }) {
 
   const totalHabits = allHabits.length
   const percent = totalHabits === 0 ? 0 : Math.round((completedCount / totalHabits) * 100)
-  const isComplete = percent === 100
+  const isComplete = percent === 100 && totalHabits > 0
+
+  // ===== DETECÇÃO DE TRANSIÇÃO 99% → 100% =====
+  const previousPercentRef = useRef(percent)
+  const [showConfetti, setShowConfetti] = useState(false)
+
+  useEffect(() => {
+    const previous = previousPercentRef.current
+    // Só dispara se ANTES não estava em 100% e AGORA está
+    if (percent === 100 && previous < 100 && totalHabits > 0) {
+      setShowConfetti(true)
+      const timer = setTimeout(() => setShowConfetti(false), 1500)
+      return () => clearTimeout(timer)
+    }
+    previousPercentRef.current = percent
+  }, [percent, totalHabits])
+
+  // Atualiza a referência depois de cada render (sem disparar o efeito acima)
+  useEffect(() => {
+    previousPercentRef.current = percent
+  })
 
   const greeting = getGreeting()
   const message = getDayMessage({ percent, completed: completedCount, total: totalHabits })
@@ -69,14 +91,14 @@ function HomePage({ identities, completions, onMarkHabit, onUnmarkHabit }) {
         <p className="text-zinc-400 text-lg mt-1 font-serif italic">{greeting}</p>
       </div>
 
-      {/* CÍRCULO DE PROGRESSO GIGANTE */}
+      {/* CÍRCULO DE PROGRESSO COM CONFETE */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="flex justify-center mb-10"
+        className="relative flex justify-center mb-10"
       >
-        <ProgressRing percent={percent} size={260} strokeWidth={14}>
+        <ProgressRing percent={percent} size={260} strokeWidth={14} isComplete={isComplete}>
           <motion.p
             key={percent}
             initial={{ scale: 0.8, opacity: 0 }}
@@ -90,6 +112,10 @@ function HomePage({ identities, completions, onMarkHabit, onUnmarkHabit }) {
             {completedCount} de {totalHabits} {totalHabits === 1 ? 'evidência' : 'evidências'}
           </p>
         </ProgressRing>
+
+        <AnimatePresence>
+          {showConfetti && <Confetti />}
+        </AnimatePresence>
       </motion.div>
 
       {/* MENSAGEM CONTEXTUAL */}

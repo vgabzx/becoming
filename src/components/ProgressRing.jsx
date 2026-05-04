@@ -1,35 +1,41 @@
 import { motion } from 'framer-motion'
 
-/**
- * Círculo de progresso animado em SVG.
- *
- * @param {number} percent - 0 a 100
- * @param {number} size - tamanho em pixels (largura/altura)
- * @param {number} strokeWidth - espessura do anel
- * @param {string} color - cor do anel preenchido (CSS color)
- * @param {string} trackColor - cor do anel de fundo
- */
 function ProgressRing({
   percent = 0,
   size = 240,
   strokeWidth = 14,
   color = '#a855f7',
   trackColor = '#27272a',
+  isComplete = false,
   children,
 }) {
-  // Geometria do círculo
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const safePercent = Math.max(0, Math.min(100, percent))
   const dashOffset = circumference - (safePercent / 100) * circumference
 
   return (
-    <div
+    <motion.div
       className="relative flex items-center justify-center"
       style={{ width: size, height: size }}
+      animate={
+        isComplete
+          ? {
+              scale: [1, 1.04, 1],
+              filter: [
+                'drop-shadow(0 0 0px rgba(168, 85, 247, 0))',
+                'drop-shadow(0 0 32px rgba(168, 85, 247, 0.6))',
+                'drop-shadow(0 0 24px rgba(168, 85, 247, 0.4))',
+              ],
+            }
+          : {
+              scale: 1,
+              filter: 'drop-shadow(0 0 0px rgba(168, 85, 247, 0))',
+            }
+      }
+      transition={{ duration: 2, ease: 'easeOut' }}
     >
       <svg width={size} height={size} className="-rotate-90 absolute inset-0">
-        {/* Anel de fundo (track) */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -38,8 +44,6 @@ function ProgressRing({
           stroke={trackColor}
           strokeWidth={strokeWidth}
         />
-
-        {/* Anel preenchido (progresso) */}
         <motion.circle
           cx={size / 2}
           cy={size / 2}
@@ -55,11 +59,10 @@ function ProgressRing({
         />
       </svg>
 
-      {/* Conteúdo no centro do anel */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center">
         {children}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
