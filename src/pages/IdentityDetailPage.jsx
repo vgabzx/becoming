@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
 import HabitItem from '../components/HabitItem'
+import HabitHeatmap from '../components/HabitHeatmap'
 import { identityMonthlyAdherence } from '../utils/habitStats'
 import NewHabitModal from '../components/NewHabitModal'
 
@@ -91,10 +92,10 @@ function IdentityDetailPage({ identities, completions, onAddHabit }) {
         </div>
       ) : (
         <div className="space-y-3">
-          {habits.map((habit) => (
-  <HabitItem key={habit.id} habit={habit} completions={completions} />
-))}
-        </div>
+  {habits.map((habit) => (
+    <HabitRow key={habit.id} habit={habit} completions={completions} />
+  ))}
+</div>
       )}
 
       {isModalOpen && (
@@ -105,6 +106,23 @@ function IdentityDetailPage({ identities, completions, onAddHabit }) {
   />
 )}
     </main>
+  )
+}
+
+function HabitRow({ habit, completions }) {
+  const [expanded, setExpanded] = useState(false)
+
+  return (
+    <div className="space-y-2">
+      <div onClick={() => setExpanded(!expanded)} className="cursor-pointer">
+        <HabitItem habit={habit} completions={completions} />
+      </div>
+      {expanded && (
+        <div className="pl-2">
+          <HabitHeatmap habit={habit} completions={completions} />
+        </div>
+      )}
+    </div>
   )
 }
 
