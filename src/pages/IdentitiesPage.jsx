@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import IdentityCard from '../components/IdentityCard'
 import NewIdentityModal from '../components/NewIdentityModal'
 import ConfirmDialog from '../components/ConfirmDialog'
+import { getIdentitiesSubtitle, getIdentitiesEmptyState } from '../data/messages'
 
 function IdentitiesPage({ identities, completions, onAddIdentity, onUpdateIdentity, onDeleteIdentity }) {
   const [modalState, setModalState] = useState({ open: false, editing: null })
@@ -35,15 +36,15 @@ function IdentitiesPage({ identities, completions, onAddIdentity, onUpdateIdenti
     setConfirmDelete(null)
   }
 
+  const emptyState = getIdentitiesEmptyState()
+
   return (
     <main className="max-w-5xl mx-auto px-6 py-12">
       <div className="flex items-end justify-between mb-10">
         <div>
           <h1 className="text-4xl font-serif italic">Suas identidades</h1>
           <p className="text-zinc-500 mt-2">
-            {identities.length === 0
-              ? 'Comece definindo quem você quer se tornar.'
-              : `${identities.length} ${identities.length === 1 ? 'identidade' : 'identidades'} em construção.`}
+            {getIdentitiesSubtitle(identities.length)}
           </p>
         </div>
 
@@ -56,12 +57,11 @@ function IdentitiesPage({ identities, completions, onAddIdentity, onUpdateIdenti
       </div>
 
       {identities.length === 0 ? (
-        <div className="border border-dashed border-zinc-800 rounded-2xl py-20 text-center">
-          <p className="text-zinc-600 font-serif italic text-xl">
-            "Você não se eleva ao nível dos seus objetivos.<br />
-            Você cai ao nível dos seus sistemas."
+        <div className="border border-dashed border-zinc-800 rounded-2xl py-20 text-center px-6">
+          <p className="text-zinc-400 font-serif italic text-xl max-w-xl mx-auto leading-relaxed">
+            {emptyState.quote}
           </p>
-          <p className="text-zinc-700 text-sm mt-3">— James Clear</p>
+          <p className="text-zinc-600 text-sm mt-4">— {emptyState.author}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

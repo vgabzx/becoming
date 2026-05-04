@@ -6,6 +6,7 @@ import HabitHeatmap from '../components/HabitHeatmap'
 import ConfirmDialog from '../components/ConfirmDialog'
 import ActionsMenu from '../components/ActionsMenu'
 import { identityMonthlyAdherence } from '../utils/habitStats'
+import { getIdentityDetailMessage } from '../data/messages'
 
 function IdentityDetailPage({ identities, completions, onAddHabit, onUpdateHabit, onDeleteHabit, onDeleteIdentity }) {
   const { id } = useParams()
@@ -22,6 +23,10 @@ function IdentityDetailPage({ identities, completions, onAddHabit, onUpdateHabit
 
   const habits = identity.habits || []
   const identityAdherence = identityMonthlyAdherence(identity, completions)
+  const detailMessage = getIdentityDetailMessage({
+    adherence: identityAdherence,
+    habitCount: habits.length,
+  })
 
   function handleSaveHabit(data) {
     if (habitModal.editing) {
@@ -77,14 +82,11 @@ function IdentityDetailPage({ identities, completions, onAddHabit, onUpdateHabit
 
       {habits.length > 0 && (
         <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-12">
-          <p className="text-zinc-500 text-sm">
-            Este mês você está sendo
+          <p className="text-2xl font-serif italic">
+            {detailMessage.title}
           </p>
-          <p className="text-3xl font-serif italic mt-1">
-            <span className="text-violet-400">{identityAdherence}%</span> essa pessoa
-          </p>
-          <p className="text-zinc-600 text-xs mt-2">
-            média de aderência aos {habits.length} {habits.length === 1 ? 'hábito' : 'hábitos'} dessa identidade
+          <p className="text-zinc-500 text-sm mt-2">
+            {detailMessage.subtitle}
           </p>
         </div>
       )}
@@ -106,12 +108,12 @@ function IdentityDetailPage({ identities, completions, onAddHabit, onUpdateHabit
       </div>
 
       {habits.length === 0 ? (
-        <div className="border border-dashed border-zinc-800 rounded-2xl py-16 text-center">
-          <p className="text-zinc-600 font-serif italic">
-            Toda identidade precisa de evidências.
+        <div className="border border-dashed border-zinc-800 rounded-2xl py-16 text-center px-6">
+          <p className="text-zinc-300 font-serif italic text-xl">
+            {detailMessage.title}
           </p>
-          <p className="text-zinc-700 text-sm mt-2">
-            Comece com um hábito simples.
+          <p className="text-zinc-500 text-sm mt-3 max-w-md mx-auto leading-relaxed">
+            {detailMessage.subtitle}
           </p>
         </div>
       ) : (
