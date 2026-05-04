@@ -1,15 +1,12 @@
 import { Routes, Route } from 'react-router-dom'
-import { useLocalStorage } from './hooks/useLocalStorage'
 import Header from './components/Header'
 import HomePage from './pages/HomePage'
 import IdentitiesPage from './pages/IdentitiesPage'
 import IdentityDetailPage from './pages/IdentityDetailPage'
+import { useLocalStorage } from './hooks/useLocalStorage'
 
 function App() {
   const [identities, setIdentities] = useLocalStorage('becoming.identities', [])
-
-  // Estrutura: { [habitId]: { [dateKey]: count } }
-  // Ex: { "abc-123": { "2025-11-04": 3, "2025-11-03": 8 } }
   const [completions, setCompletions] = useLocalStorage('becoming.completions', {})
 
   function handleAddIdentity(identity) {
@@ -19,6 +16,27 @@ function App() {
       ...identity,
     }
     setIdentities([...identities, newIdentity])
+  }
+
+  function handleUpdateIdentity(identityId, updates) {
+    setIdentities(
+      identities.map((identity) =>
+        identity.id === identityId ? { ...identity, ...updates } : identity
+      )
+    )
+  }
+
+  function handleDeleteIdentity(identityId) {
+    const identity = identities.find((i) => i.id === identityId)
+    setIdentities(identities.filter((i) => i.id !== identityId))
+
+    if (identity?.habits) {
+      setCompletions((prev) => {
+        const next = { ...prev }
+        identity.habits.forEach((h) => delete next[h.id])
+        return next
+      })
+    }
   }
 
   function handleAddHabit(identityId, habit) {
@@ -35,6 +53,37 @@ function App() {
           : identity
       )
     )
+  }
+
+  function handleUpdateHabit(identityId, habitId, updates) {
+    setIdentities(
+      identities.map((identity) => {
+        if (identity.id !== identityId) return identity
+        return {
+          ...identity,
+          habits: (identity.habits || []).map((habit) =>
+            habit.id === habitId ? { ...habit, ...updates } : habit
+          ),
+        }
+      })
+    )
+  }
+
+  function handleDeleteHabit(identityId, habitId) {
+    setIdentities(
+      identities.map((identity) => {
+        if (identity.id !== identityId) return identity
+        return {
+          ...identity,
+          habits: (identity.habits || []).filter((h) => h.id !== habitId),
+        }
+      })
+    )
+    setCompletions((prev) => {
+      const next = { ...prev }
+      delete next[habitId]
+      return next
+    })
   }
 
   function handleMarkHabit(habitId, dateKey) {
@@ -84,34 +133,30 @@ function App() {
           }
         />
         <Route
-  path="/identidades"
-  element={
-    <IdentitiesPage
-      identities={identities}
-      onAddIdentity={handleAddIdentity}
-    />
-  }
-/>
-<Route
-  path="/identidades"
-  element={
-    <IdentitiesPage
-      identities={identities}
-      completions={completions}
-      onAddIdentity={handleAddIdentity}
-    />
-  }
-/>
-<Route
-  path="/identidade/:id"
-  element={
-    <IdentityDetailPage
-      identities={identities}
-      completions={completions}
-      onAddHabit={handleAddHabit}
-    />
-  }
-/>
+          path="/identidades"
+          element={
+            <IdentitiesPage
+              identities={identities}
+              completions={completions}
+              onAddIdentity={handleAddIdentity}
+              onUpdateIdentity={handleUpdateIdentity}
+              onDeleteIdentity={handleDeleteIdentity}
+            />
+          }
+        />
+        <Route
+          path="/identidade/:id"
+          element={
+            <IdentityDetailPage
+              identities={identities}
+              completions={completions}
+              onAddHabit={handleAddHabit}
+              onUpdateHabit={handleUpdateHabit}
+              onDeleteHabit={handleDeleteHabit}
+              onDeleteIdentity={handleDeleteIdentity}
+            />
+          }
+        />
       </Routes>
     </div>
   )

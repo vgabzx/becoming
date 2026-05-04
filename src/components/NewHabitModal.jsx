@@ -1,19 +1,21 @@
 import { useState } from 'react'
 import { CATEGORIES, HABIT_TEMPLATES, getSuggestedCategories } from '../data/habitTemplates'
 
-function NewHabitModal({ identity, onClose, onSave }) {
-  const [step, setStep] = useState('browse')
+function NewHabitModal({ identity, habit, onClose, onSave }) {
+  const isEditing = !!habit
+
+  const [step, setStep] = useState(isEditing ? 'edit' : 'browse')
   const [selectedTemplate, setSelectedTemplate] = useState(null)
 
   const suggested = getSuggestedCategories(identity.name)
   const initialCategory = suggested[0] || 'physical'
   const [activeCategory, setActiveCategory] = useState(initialCategory)
 
-  const [name, setName] = useState('')
-  const [emoji, setEmoji] = useState('✨')
-  const [frequency, setFrequency] = useState('daily')
-  const [target, setTarget] = useState(1)
-  const [unit, setUnit] = useState('vez')
+  const [name, setName] = useState(habit?.name || '')
+  const [emoji, setEmoji] = useState(habit?.emoji || '✨')
+  const [frequency, setFrequency] = useState(habit?.frequency || 'daily')
+  const [target, setTarget] = useState(habit?.target || 1)
+  const [unit, setUnit] = useState(habit?.unit || 'vez')
 
   function pickTemplate(template) {
     setSelectedTemplate(template)
@@ -146,19 +148,21 @@ function NewHabitModal({ identity, onClose, onSave }) {
                 <span className="text-3xl">{emoji}</span>
                 <div>
                   <p className="text-violet-400 text-xs uppercase tracking-widest">
-                    Ajustar hábito
+                    {isEditing ? 'Editar hábito' : 'Ajustar hábito'}
                   </p>
                   <p className="text-zinc-500 text-sm mt-0.5">
-                    personalize antes de criar
+                    {isEditing ? 'mude o que precisar' : 'personalize antes de criar'}
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => setStep('browse')}
-                className="text-zinc-500 hover:text-white text-sm transition-colors"
-              >
-                ← voltar
-              </button>
+              {!isEditing && (
+                <button
+                  onClick={() => setStep('browse')}
+                  className="text-zinc-500 hover:text-white text-sm transition-colors"
+                >
+                  ← voltar
+                </button>
+              )}
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
@@ -236,7 +240,7 @@ function NewHabitModal({ identity, onClose, onSave }) {
                   disabled={!name.trim()}
                   className="flex-1 py-3 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  Criar hábito
+                  {isEditing ? 'Salvar' : 'Criar hábito'}
                 </button>
               </div>
             </form>

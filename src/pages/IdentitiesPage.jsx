@@ -2,13 +2,36 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import IdentityCard from '../components/IdentityCard'
 import NewIdentityModal from '../components/NewIdentityModal'
+import ConfirmDialog from '../components/ConfirmDialog'
 
-function IdentitiesPage({ identities, completions, onAddIdentity }) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+function IdentitiesPage({ identities, completions, onAddIdentity, onUpdateIdentity, onDeleteIdentity }) {
+  const [modalState, setModalState] = useState({ open: false, editing: null })
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
-  function handleSave(identity) {
-    onAddIdentity(identity)
-    setIsModalOpen(false)
+  function openCreate() {
+    setModalState({ open: true, editing: null })
+  }
+
+  function openEdit(identity) {
+    setModalState({ open: true, editing: identity })
+  }
+
+  function closeModal() {
+    setModalState({ open: false, editing: null })
+  }
+
+  function handleSave(data) {
+    if (modalState.editing) {
+      onUpdateIdentity(modalState.editing.id, data)
+    } else {
+      onAddIdentity(data)
+    }
+    closeModal()
+  }
+
+  function handleConfirmDelete() {
+    onDeleteIdentity(confirmDelete.id)
+    setConfirmDelete(null)
   }
 
   return (
@@ -24,7 +47,7 @@ function IdentitiesPage({ identities, completions, onAddIdentity }) {
         </div>
 
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={openCreate}
           className="bg-violet-500 hover:bg-violet-600 transition-colors px-5 py-2.5 rounded-full text-sm font-medium"
         >
           + Nova identidade
@@ -42,17 +65,35 @@ function IdentitiesPage({ identities, completions, onAddIdentity }) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {identities.map((identity) => (
-            <Link key={identity.id} to={`/identidade/${identity.id}`}>
-              <IdentityCard identity={identity} completions={completions} />
-            </Link>
+            <div key={identity.id} className="relative">
+              <Link to={`/identidade/${identity.id}`} className="block">
+                <IdentityCard
+                  identity={identity}
+                  completions={completions}
+                  onEdit={openEdit}
+                  onDelete={(i) => setConfirmDelete(i)}
+                />
+              </Link>
+            </div>
           ))}
         </div>
       )}
 
-      {isModalOpen && (
+      {modalState.open && (
         <NewIdentityModal
-          onClose={() => setIsModalOpen(false)}
+          identity={modalState.editing}
+          onClose={closeModal}
           onSave={handleSave}
+        />
+      )}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          title={`Excluir "${confirmDelete.name}"?`}
+          description={`Essa ação vai remover essa identidade e todos os ${confirmDelete.habits?.length || 0} hábitos vinculados, junto com todo o histórico. Não pode ser desfeito.`}
+          confirmLabel="Excluir tudo"
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={handleConfirmDelete}
         />
       )}
     </main>

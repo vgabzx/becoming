@@ -1,6 +1,7 @@
 import { currentStreak, monthlyAdherence } from '../utils/habitStats'
+import ActionsMenu from './ActionsMenu'
 
-function HabitItem({ habit, completions }) {
+function HabitItem({ habit, completions, onEdit, onDelete }) {
   const frequencyLabel = {
     daily: 'todo dia',
     weekly: 'algumas vezes na semana',
@@ -8,6 +9,10 @@ function HabitItem({ habit, completions }) {
 
   const streak = currentStreak(habit, completions)
   const adherence = monthlyAdherence(habit, completions)
+
+  const actions = []
+  if (onEdit) actions.push({ label: 'Editar', onClick: () => onEdit(habit) })
+  if (onDelete) actions.push({ label: 'Excluir', onClick: () => onDelete(habit), destructive: true })
 
   return (
     <div className="group bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-xl p-5 transition-all flex items-center justify-between gap-4">
@@ -36,6 +41,8 @@ function HabitItem({ habit, completions }) {
             {adherence}%
           </p>
         </div>
+
+        {actions.length > 0 && <ActionsMenu actions={actions} />}
       </div>
     </div>
   )

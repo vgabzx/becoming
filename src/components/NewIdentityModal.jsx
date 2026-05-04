@@ -1,39 +1,34 @@
 import { useState } from 'react'
 
 const COLORS = [
-  '#a855f7', // violeta
-  '#22c55e', // verde
-  '#3b82f6', // azul
-  '#f59e0b', // âmbar
-  '#ef4444', // vermelho
-  '#ec4899', // rosa
+  '#a855f7', '#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#ec4899',
 ]
 
-function NewIdentityModal({ onClose, onSave }) {
-  const [name, setName] = useState('')
-  const [color, setColor] = useState(COLORS[0])
+function NewIdentityModal({ identity, onClose, onSave }) {
+  const isEditing = !!identity
+  const [name, setName] = useState(identity?.name || '')
+  const [color, setColor] = useState(identity?.color || COLORS[0])
 
   function handleSubmit(e) {
     e.preventDefault()
     if (!name.trim()) return
     onSave({ name: name.trim(), color })
-    setName('')
   }
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
-      <div 
+      <div
         className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
       >
         <p className="text-violet-400 text-xs uppercase tracking-widest mb-2">
-          Nova identidade
+          {isEditing ? 'Editar identidade' : 'Nova identidade'}
         </p>
         <h2 className="text-3xl font-serif italic mb-1">
-          Quem você quer ser?
+          {isEditing ? 'Refine quem você quer ser' : 'Quem você quer ser?'}
         </h2>
         <p className="text-zinc-500 text-sm mb-8">
           Escreva como uma afirmação no presente.
@@ -79,7 +74,7 @@ function NewIdentityModal({ onClose, onSave }) {
               disabled={!name.trim()}
               className="flex-1 py-3 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-medium transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              Criar
+              {isEditing ? 'Salvar' : 'Criar'}
             </button>
           </div>
         </form>
