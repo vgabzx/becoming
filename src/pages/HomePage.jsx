@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import HabitDayItem from '../components/HabitDayItem'
+import ProgressRing from '../components/ProgressRing'
 import { getGreeting, getDayMessage, getInspirational } from '../data/messages'
 
 function HomePage({ identities, completions, onMarkHabit, onUnmarkHabit }) {
@@ -22,12 +24,13 @@ function HomePage({ identities, completions, onMarkHabit, onUnmarkHabit }) {
 
   const totalHabits = allHabits.length
   const percent = totalHabits === 0 ? 0 : Math.round((completedCount / totalHabits) * 100)
+  const isComplete = percent === 100
 
   const greeting = getGreeting()
   const message = getDayMessage({ percent, completed: completedCount, total: totalHabits })
   const inspirational = getInspirational()
 
-  // Estado vazio: ainda não tem hábitos
+  // Estado vazio
   if (totalHabits === 0) {
     return (
       <main className="max-w-3xl mx-auto px-6 py-12">
@@ -60,25 +63,46 @@ function HomePage({ identities, completions, onMarkHabit, onUnmarkHabit }) {
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
-      <div className="mb-12">
+      {/* HEADER COM SAUDAÇÃO */}
+      <div className="text-center mb-10">
         <p className="text-zinc-500 text-sm capitalize">{dateLabel}</p>
         <p className="text-zinc-400 text-lg mt-1 font-serif italic">{greeting}</p>
+      </div>
 
-        <h1 className="text-4xl md:text-5xl font-serif italic mt-4 leading-tight">
+      {/* CÍRCULO DE PROGRESSO GIGANTE */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="flex justify-center mb-10"
+      >
+        <ProgressRing percent={percent} size={260} strokeWidth={14}>
+          <motion.p
+            key={percent}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className={`text-6xl font-serif italic ${isComplete ? 'text-violet-300' : 'text-white'}`}
+          >
+            {percent}<span className="text-3xl">%</span>
+          </motion.p>
+          <p className="text-zinc-500 text-xs uppercase tracking-widest mt-2">
+            {completedCount} de {totalHabits} {totalHabits === 1 ? 'evidência' : 'evidências'}
+          </p>
+        </ProgressRing>
+      </motion.div>
+
+      {/* MENSAGEM CONTEXTUAL */}
+      <div className="text-center mb-12 max-w-xl mx-auto">
+        <h1 className="text-3xl md:text-4xl font-serif italic leading-tight">
           {message.title}
         </h1>
         <p className="text-zinc-500 mt-3 leading-relaxed">
           {message.subtitle}
         </p>
-
-        <div className="mt-6 h-1.5 bg-zinc-900 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-violet-500 transition-all duration-500"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
       </div>
 
+      {/* HÁBITOS POR IDENTIDADE */}
       <div className="space-y-10">
         {identities.map((identity) => {
           const habits = identity.habits || []
