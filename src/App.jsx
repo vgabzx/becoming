@@ -1,16 +1,16 @@
-import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { useLocalStorage } from './hooks/useLocalStorage'
 import Header from './components/Header'
 import HomePage from './pages/HomePage'
 import IdentitiesPage from './pages/IdentitiesPage'
 import IdentityDetailPage from './pages/IdentityDetailPage'
 
 function App() {
-  const [identities, setIdentities] = useState([])
+  const [identities, setIdentities] = useLocalStorage('becoming.identities', [])
 
   // Estrutura: { [habitId]: { [dateKey]: count } }
   // Ex: { "abc-123": { "2025-11-04": 3, "2025-11-03": 8 } }
-  const [completions, setCompletions] = useState({})
+  const [completions, setCompletions] = useLocalStorage('becoming.completions', {})
 
   function handleAddIdentity(identity) {
     const newIdentity = {
@@ -84,23 +84,34 @@ function App() {
           }
         />
         <Route
-          path="/identidades"
-          element={
-            <IdentitiesPage
-              identities={identities}
-              onAddIdentity={handleAddIdentity}
-            />
-          }
-        />
-        <Route
-          path="/identidade/:id"
-          element={
-            <IdentityDetailPage
-              identities={identities}
-              onAddHabit={handleAddHabit}
-            />
-          }
-        />
+  path="/identidades"
+  element={
+    <IdentitiesPage
+      identities={identities}
+      onAddIdentity={handleAddIdentity}
+    />
+  }
+/>
+<Route
+  path="/identidades"
+  element={
+    <IdentitiesPage
+      identities={identities}
+      completions={completions}
+      onAddIdentity={handleAddIdentity}
+    />
+  }
+/>
+<Route
+  path="/identidade/:id"
+  element={
+    <IdentityDetailPage
+      identities={identities}
+      completions={completions}
+      onAddHabit={handleAddHabit}
+    />
+  }
+/>
       </Routes>
     </div>
   )

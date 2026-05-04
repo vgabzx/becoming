@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import IdentityCard from '../components/IdentityCard'
 import NewIdentityModal from '../components/NewIdentityModal'
 
-function IdentitiesPage({ identities, onAddIdentity }) {
+function IdentitiesPage({ identities, completions, onAddIdentity }) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   function handleSave(identity) {
@@ -43,7 +43,7 @@ function IdentitiesPage({ identities, onAddIdentity }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {identities.map((identity) => (
             <Link key={identity.id} to={`/identidade/${identity.id}`}>
-              <IdentityCard identity={identity} />
+              <IdentityCard identity={identity} completions={completions} />
             </Link>
           ))}
         </div>

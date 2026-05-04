@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
 import HabitItem from '../components/HabitItem'
+import { identityMonthlyAdherence } from '../utils/habitStats'
 import NewHabitModal from '../components/NewHabitModal'
 
-function IdentityDetailPage({ identities, onAddHabit }) {
+function IdentityDetailPage({ identities, completions, onAddHabit }) {
   const { id } = useParams()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -14,6 +15,8 @@ function IdentityDetailPage({ identities, onAddHabit }) {
   }
 
   const habits = identity.habits || []
+
+  const identityAdherence = identityMonthlyAdherence(identity, completions)
 
   function handleSave(habit) {
     onAddHabit(identity.id, habit)
@@ -29,20 +32,37 @@ function IdentityDetailPage({ identities, onAddHabit }) {
         ← voltar
       </Link>
 
-      <div className="flex items-start gap-4 mb-12">
-        <div
-          className="w-1.5 h-20 rounded-full flex-shrink-0 mt-1"
-          style={{ backgroundColor: identity.color }}
-        />
-        <div>
-          <p className="text-zinc-500 text-sm uppercase tracking-wider mb-1">
-            Estou me tornando
-          </p>
-          <h1 className="text-5xl font-serif italic text-white leading-tight">
-            {identity.name}
-          </h1>
-        </div>
-      </div>
+      <div className="flex items-start gap-4 mb-8">
+  <div
+    className="w-1.5 h-20 rounded-full flex-shrink-0 mt-1"
+    style={{ backgroundColor: identity.color }}
+  />
+  <div>
+    <p className="text-zinc-500 text-sm uppercase tracking-wider mb-1">
+      Estou me tornando
+    </p>
+    <h1 className="text-5xl font-serif italic text-white leading-tight">
+      {identity.name}
+    </h1>
+  </div>
+</div>
+
+{habits.length > 0 && (
+  <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 mb-12">
+    <p className="text-zinc-500 text-sm">
+      Este mês você está sendo
+    </p>
+    <p className="text-3xl font-serif italic mt-1">
+      <span className="text-violet-400">
+        {identityAdherence}%
+      </span>{' '}
+      essa pessoa
+    </p>
+    <p className="text-zinc-600 text-xs mt-2">
+      média de aderência aos {habits.length} {habits.length === 1 ? 'hábito' : 'hábitos'} dessa identidade
+    </p>
+  </div>
+)}
 
       <div className="flex items-end justify-between mb-6">
         <div>
@@ -72,8 +92,8 @@ function IdentityDetailPage({ identities, onAddHabit }) {
       ) : (
         <div className="space-y-3">
           {habits.map((habit) => (
-            <HabitItem key={habit.id} habit={habit} />
-          ))}
+  <HabitItem key={habit.id} habit={habit} completions={completions} />
+))}
         </div>
       )}
 
