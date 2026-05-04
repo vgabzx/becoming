@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { CATEGORIES, HABIT_TEMPLATES, getSuggestedCategories } from '../data/habitTemplates'
 
 function NewHabitModal({ identity, habit, onClose, onSave }) {
@@ -52,11 +53,19 @@ function NewHabitModal({ identity, habit, onClose, onSave }) {
   const filteredTemplates = HABIT_TEMPLATES.filter((t) => t.category === activeCategory)
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
         className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
@@ -246,8 +255,8 @@ function NewHabitModal({ identity, habit, onClose, onSave }) {
             </form>
           </div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 

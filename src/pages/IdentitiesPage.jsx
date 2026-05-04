@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import IdentityCard from '../components/IdentityCard'
 import NewIdentityModal from '../components/NewIdentityModal'
 import ConfirmDialog from '../components/ConfirmDialog'
@@ -64,17 +65,23 @@ function IdentitiesPage({ identities, completions, onAddIdentity, onUpdateIdenti
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {identities.map((identity) => (
-            <div key={identity.id} className="relative">
+          {identities.map((identity, i) => (
+            <motion.div
+              key={identity.id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04, duration: 0.25 }}
+              className="relative"
+            >
               <Link to={`/identidade/${identity.id}`} className="block">
                 <IdentityCard
                   identity={identity}
                   completions={completions}
                   onEdit={openEdit}
-                  onDelete={(i) => setConfirmDelete(i)}
+                  onDelete={(idn) => setConfirmDelete(idn)}
                 />
               </Link>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}

@@ -4,10 +4,12 @@ import HomePage from './pages/HomePage'
 import IdentitiesPage from './pages/IdentitiesPage'
 import IdentityDetailPage from './pages/IdentityDetailPage'
 import { useLocalStorage } from './hooks/useLocalStorage'
+import { useToast } from './context/ToastContext'
 
 function App() {
   const [identities, setIdentities] = useLocalStorage('becoming.identities', [])
   const [completions, setCompletions] = useLocalStorage('becoming.completions', {})
+  const toast = useToast()
 
   function handleAddIdentity(identity) {
     const newIdentity = {
@@ -16,6 +18,7 @@ function App() {
       ...identity,
     }
     setIdentities([...identities, newIdentity])
+    toast.success(`Identidade criada: ${identity.name}`)
   }
 
   function handleUpdateIdentity(identityId, updates) {
@@ -24,6 +27,7 @@ function App() {
         identity.id === identityId ? { ...identity, ...updates } : identity
       )
     )
+    toast.success('Identidade atualizada')
   }
 
   function handleDeleteIdentity(identityId) {
@@ -37,6 +41,7 @@ function App() {
         return next
       })
     }
+    toast.info(`Identidade "${identity?.name}" excluída`)
   }
 
   function handleAddHabit(identityId, habit) {
@@ -53,6 +58,7 @@ function App() {
           : identity
       )
     )
+    toast.success(`Hábito criado: ${habit.name}`)
   }
 
   function handleUpdateHabit(identityId, habitId, updates) {
@@ -67,9 +73,13 @@ function App() {
         }
       })
     )
+    toast.success('Hábito atualizado')
   }
 
   function handleDeleteHabit(identityId, habitId) {
+    const identity = identities.find((i) => i.id === identityId)
+    const habit = identity?.habits?.find((h) => h.id === habitId)
+
     setIdentities(
       identities.map((identity) => {
         if (identity.id !== identityId) return identity
@@ -84,6 +94,7 @@ function App() {
       delete next[habitId]
       return next
     })
+    toast.info(`Hábito "${habit?.name}" excluído`)
   }
 
   function handleMarkHabit(habitId, dateKey) {

@@ -1,10 +1,20 @@
+import { motion } from 'framer-motion'
+
 function ConfirmDialog({ title, description, confirmLabel = 'Excluir', onCancel, onConfirm, destructive = true }) {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onCancel}
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
         className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
       >
@@ -31,8 +41,8 @@ function ConfirmDialog({ title, description, confirmLabel = 'Excluir', onCancel,
             {confirmLabel}
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 

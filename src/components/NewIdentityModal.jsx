@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 
 const COLORS = [
   '#a855f7', '#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#ec4899',
@@ -16,11 +17,19 @@ function NewIdentityModal({ identity, onClose, onSave }) {
   }
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
         className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 max-w-md w-full"
         onClick={(e) => e.stopPropagation()}
       >
@@ -78,8 +87,8 @@ function NewIdentityModal({ identity, onClose, onSave }) {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 

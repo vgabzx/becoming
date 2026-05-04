@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion'
+
 function HabitDayItem({ habit, count, onIncrement, onDecrement }) {
   const isComplete = count >= habit.target
   const progress = Math.min((count / habit.target) * 100, 100)
@@ -43,9 +45,12 @@ function HabitDayItem({ habit, count, onIncrement, onDecrement }) {
             </button>
           )}
 
-          <button
+          <motion.button
             onClick={onIncrement}
             disabled={isComplete}
+            whileTap={{ scale: 0.9 }}
+            animate={isComplete ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+            transition={{ duration: 0.25 }}
             className={`w-9 h-9 rounded-full font-medium transition-colors flex items-center justify-center ${
               isComplete
                 ? 'bg-violet-500/30 text-violet-300 cursor-default'
@@ -54,7 +59,7 @@ function HabitDayItem({ habit, count, onIncrement, onDecrement }) {
             aria-label="Marcar"
           >
             {isComplete ? '✓' : '+'}
-          </button>
+          </motion.button>
         </div>
       </div>
     </div>
