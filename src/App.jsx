@@ -1,69 +1,107 @@
 import { useState } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
-import IdentityCard from './components/IdentityCard'
-import NewIdentityModal from './components/NewIdentityModal'
+import HomePage from './pages/HomePage'
+import IdentitiesPage from './pages/IdentitiesPage'
+import IdentityDetailPage from './pages/IdentityDetailPage'
 
 function App() {
   const [identities, setIdentities] = useState([])
-  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  function handleSaveIdentity(identity) {
+  // Estrutura: { [habitId]: { [dateKey]: count } }
+  // Ex: { "abc-123": { "2025-11-04": 3, "2025-11-03": 8 } }
+  const [completions, setCompletions] = useState({})
+
+  function handleAddIdentity(identity) {
     const newIdentity = {
       id: crypto.randomUUID(),
+      habits: [],
       ...identity,
     }
     setIdentities([...identities, newIdentity])
-    setIsModalOpen(false)
+  }
+
+  function handleAddHabit(identityId, habit) {
+    const newHabit = {
+      id: crypto.randomUUID(),
+      createdAt: new Date().toISOString(),
+      ...habit,
+    }
+
+    setIdentities(
+      identities.map((identity) =>
+        identity.id === identityId
+          ? { ...identity, habits: [...(identity.habits || []), newHabit] }
+          : identity
+      )
+    )
+  }
+
+  function handleMarkHabit(habitId, dateKey) {
+    setCompletions((prev) => {
+      const habitData = prev[habitId] || {}
+      const currentCount = habitData[dateKey] || 0
+      return {
+        ...prev,
+        [habitId]: {
+          ...habitData,
+          [dateKey]: currentCount + 1,
+        },
+      }
+    })
+  }
+
+  function handleUnmarkHabit(habitId, dateKey) {
+    setCompletions((prev) => {
+      const habitData = prev[habitId] || {}
+      const currentCount = habitData[dateKey] || 0
+      if (currentCount <= 0) return prev
+
+      return {
+        ...prev,
+        [habitId]: {
+          ...habitData,
+          [dateKey]: currentCount - 1,
+        },
+      }
+    })
   }
 
   return (
     <div className="min-h-screen">
       <Header />
 
-      <main className="max-w-5xl mx-auto px-6 py-12">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <h1 className="text-4xl font-serif italic">
-              Suas identidades
-            </h1>
-            <p className="text-zinc-500 mt-2">
-              {identities.length === 0 
-                ? 'Comece definindo quem você quer se tornar.' 
-                : `${identities.length} ${identities.length === 1 ? 'identidade' : 'identidades'} em construção.`}
-            </p>
-          </div>
-
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-violet-500 hover:bg-violet-600 transition-colors px-5 py-2.5 rounded-full text-sm font-medium"
-          >
-            + Nova identidade
-          </button>
-        </div>
-
-        {identities.length === 0 ? (
-          <div className="border border-dashed border-zinc-800 rounded-2xl py-20 text-center">
-            <p className="text-zinc-600 font-serif italic text-xl">
-              "Você não se eleva ao nível dos seus objetivos.<br/>
-              Você cai ao nível dos seus sistemas."
-            </p>
-            <p className="text-zinc-700 text-sm mt-3">— James Clear</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {identities.map((identity) => (
-              <IdentityCard key={identity.id} identity={identity} />
-            ))}
-          </div>
-        )}
-      </main>
-
-      {isModalOpen && (
-        <NewIdentityModal
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSaveIdentity}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <HomePage
+              identities={identities}
+              completions={completions}
+              onMarkHabit={handleMarkHabit}
+              onUnmarkHabit={handleUnmarkHabit}
+            />
+          }
         />
-      )}
+        <Route
+          path="/identidades"
+          element={
+            <IdentitiesPage
+              identities={identities}
+              onAddIdentity={handleAddIdentity}
+            />
+          }
+        />
+        <Route
+          path="/identidade/:id"
+          element={
+            <IdentityDetailPage
+              identities={identities}
+              onAddHabit={handleAddHabit}
+            />
+          }
+        />
+      </Routes>
     </div>
   )
 }
